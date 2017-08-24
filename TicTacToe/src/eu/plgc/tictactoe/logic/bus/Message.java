@@ -3,6 +3,8 @@ package eu.plgc.tictactoe.logic.bus;
 public class Message {
 	
 	public static final String PlayerMoved = "PlayerMoved";
+	public static final String Info = "Info";
+	public static final String GameReset = "GameReset";
 	
 	private String messageType;
 	private Object messageData;

@@ -1,5 +1,9 @@
 package eu.plgc.tictactoe;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
+
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -11,10 +15,10 @@ public class Program {
 
 	public static void main(String[] args) {
 
-		/* Use an appropriate Look and Feel */
 		try {
-			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+			//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");			
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			
 		} catch (UnsupportedLookAndFeelException ex) {
 			ex.printStackTrace();
 		} catch (IllegalAccessException ex) {
@@ -24,11 +28,9 @@ public class Program {
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}
-		/* Turn off metal's use of bold fonts */
-		UIManager.put("swing.boldMetal", Boolean.FALSE);
 
-		// Schedule a job for the event dispatch thread:
-		// creating and showing this application's GUI.
+		//UIManager.put("swing.boldMetal", Boolean.FALSE);
+
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGUI();
@@ -38,21 +40,37 @@ public class Program {
 	}
 
 	private static void createAndShowGUI() {
-		// Create and set up the window.
+
 		JFrame frame = new JFrame("Tic Tac Toe");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		// Set up the content pane.
+			
 		MessageQueue queue = new MessageQueue();
 		queue.addListener(new ConsoleMessageLog());
-		
-		
+			
 		GameController controller = new GameController(3, 3, queue);
-		MasterPane demo = new MasterPane(controller, frame.getContentPane());
+		new MasterPane(controller, frame.getContentPane());
+		
+		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new KeyEventDispatcher() {
+			
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				if (e.getID() == KeyEvent.KEY_PRESSED) {
+	                if (e.getKeyChar() == 'q'){
+	                	frame.dispose();
+	                }
+	                if (e.getKeyChar() == 'r'){
+	                	controller.reset();
+	                }
+	            } 
+				return false;
+			}
+		});
 
-		// Display the window.
 		frame.pack();
-		frame.setVisible(true);
+		frame.setVisible(true);		
+
 	}
+	
 
 }

@@ -47,7 +47,13 @@ public class GameController {
 
 		activePlayer = player1;
 		
+		messageQueue.postMessage(Message.GameReset, null);
+		
 		setState(GameState.Started);
+	}
+	
+	public void reset() {
+		start(this.gameMode);
 	}
 	
 	private void togglePlayer(){
@@ -99,4 +105,6 @@ public class GameController {
 	public MessageQueue getMessageQueue() {
 		return messageQueue;
 	}
+
+
 }

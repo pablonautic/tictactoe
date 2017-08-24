@@ -23,7 +23,7 @@ public class MessageQueue {
 	}
 	
 	public void log(String message){
-		
+		postMessage(Message.Info, message);
 	}
 
 }

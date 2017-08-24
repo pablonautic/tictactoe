@@ -15,19 +15,17 @@ import eu.plgc.tictactoe.logic.bus.Message;
 
 public class MasterPane implements IMessageListener {
 	
-	
-    static final String gapList[] = {"0", "10", "15", "20"};
-    final static int maxGap = 20;
-
-    JButton applyButton = new JButton("Apply gaps");
-    //GridLayout experimentLayout = new GridLayout(3,3);
-    
+    private final static int maxGap = 20;
+   
 	private final GameController gameController;
 	
     private GameButton[][] buttons;
+
+	private Container parentPane;
 	
     public MasterPane(GameController controller, Container parentPane){
 		this.gameController = controller;
+		this.parentPane = parentPane;
 		this.gameController.getMessageQueue().addListener(this);
 		
 		addComponentsToPane(parentPane);
@@ -35,33 +33,26 @@ public class MasterPane implements IMessageListener {
 		this.gameController.start(GameMode.PlayerVsAi);
     }
     
-	@Override
-	public void onMessageReceived(Message message) {
-		//TODO move check logic to bus
-		if (message.getMessageType() == Message.PlayerMoved){
-			PlayerMoveData data = (PlayerMoveData) message.getMessageData();
-			buttons[data.getX()][data.getY()].setFieldState(data.getNewState());
-		}
-		
-	}
-    
-    public void initGaps() {
+    private void addComponentsToPane(final Container pane) {
+
+        //pane.setLayout(new GridLayout(3,0));
+             
+        JPanel primaryPanel = createGamePanel();    
+        JPanel menuPanel = createMenu();
+             
+        pane.add(menuPanel, BorderLayout.NORTH);
+        //pane.add(new JSeparator(), BorderLayout.CENTER);
+        pane.add(primaryPanel, BorderLayout.SOUTH);
+        
 
     }
-    
-    public void addComponentsToPane(final Container pane) {
-        initGaps();
-      
-        JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new GridLayout(2,3));
-                
-        pane.setLayout(new FlowLayout());
-             
-        GameBoard board = gameController.getGameBoard();
+
+	private JPanel createGamePanel() {
+		GameBoard board = gameController.getGameBoard();
         int m = board.getM();
         int n = board.getN();
         
-        final JPanel primaryPanel = new JPanel();
+        JPanel primaryPanel = new JPanel();
         GridLayout gridLayout = new GridLayout(m,n);
         gridLayout.setHgap(2);
         gridLayout.setVgap(2);
@@ -84,23 +75,54 @@ public class MasterPane implements IMessageListener {
         		primaryPanel.add(button);		
 			}			
 		}
+		return primaryPanel;
+	}
 
-        //Add controls to set up horizontal and vertical gaps
-        menuPanel.add(new Label("Horizontal gap:"));
-        menuPanel.add(new Label("Vertical gap:"));
-        menuPanel.add(new Label(" "));
+	@Override
+	public void onMessageReceived(Message message) {
 
-        menuPanel.add(applyButton);
-        
-        
-        pane.add(menuPanel, BorderLayout.NORTH);
-        pane.add(new JSeparator(), BorderLayout.CENTER);
-        pane.add(primaryPanel, BorderLayout.SOUTH);
-
-
-    }
-
-
+		if (message.getMessageType() == Message.PlayerMoved){
+			PlayerMoveData data = (PlayerMoveData) message.getMessageData();
+			buttons[data.getX()][data.getY()].setFieldState(data.getNewState());
+		}
+		
+		if (message.getMessageType() == Message.GameReset){
+			
+			GameBoard board = gameController.getGameBoard();
+	        int m = board.getM();
+	        int n = board.getN();
+			
+	        for (int i = 0; i < m; i++) {
+	        	for (int j = 0; j < n; j++) {
+	        		buttons[i][j].setFieldState(FieldState.Empty);
+				}			
+			}
+		}
+	}
     
+	private JPanel createMenu() {
+		JPanel menuPanel = new JPanel();
+        //menuPanel.setLayout(new GridLayout(0,3));
+                
+        JButton b1 = new JButton("New PvP");
+        b1.addActionListener((e) -> {
+        	this.gameController.start(GameMode.TwoPlayer);
+        });
+        menuPanel.add(b1);
+        
+        JButton b2 = new JButton("New PvAi");
+        b2.addActionListener((e) -> {
+        	this.gameController.start(GameMode.PlayerVsAi);
+        });
+        menuPanel.add(b2);
+        
+        JButton b3 = new JButton("Reset");
+        b3.addActionListener((e) -> {
+        	this.gameController.reset();
+        });
+        menuPanel.add(b3);
+        
+		return menuPanel;
+	}
 
 }
