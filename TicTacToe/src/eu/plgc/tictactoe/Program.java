@@ -5,6 +5,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import eu.plgc.tictactoe.logic.GameController;
+import eu.plgc.tictactoe.logic.bus.MessageQueue;
 
 public class Program {
 
@@ -42,7 +43,11 @@ public class Program {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Set up the content pane.
-		GameController controller = new GameController(3, 3, new ConsoleMessageLog());
+		MessageQueue queue = new MessageQueue();
+		queue.addListener(new ConsoleMessageLog());
+		
+		
+		GameController controller = new GameController(3, 3, queue);
 		MasterPane demo = new MasterPane(controller, frame.getContentPane());
 
 		// Display the window.

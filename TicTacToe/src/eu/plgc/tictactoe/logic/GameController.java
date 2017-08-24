@@ -1,5 +1,7 @@
 package eu.plgc.tictactoe.logic;
 
+import eu.plgc.tictactoe.logic.bus.Message;
+import eu.plgc.tictactoe.logic.bus.MessageQueue;
 import eu.plgc.tictatoe.utils.Tuple;
 
 public class GameController {
@@ -8,15 +10,17 @@ public class GameController {
 	private GameMode gameMode;
 
 	private GameBoard gameBoard;
-	private IMessageLog messageLog;
+	private MessageQueue messageQueue;
+
+
 
 	private AbstractPlayer player1;
 	private AbstractPlayer player2;
 	
 	private AbstractPlayer activePlayer;
 
-	public GameController(int n, int m, IMessageLog messageLog) {
-		this.messageLog = messageLog;
+	public GameController(int n, int m, MessageQueue messageLog) {
+		this.messageQueue = messageLog;
 		this.gameBoard = new GameBoard(m, n);
 	}
 
@@ -26,7 +30,7 @@ public class GameController {
 
 	public void start(GameMode gameMode) {
 		this.gameMode = gameMode;
-		messageLog.log("Staring game in mode: " + gameMode);
+		messageQueue.log("Staring game in mode: " + gameMode);
 
 		player1 = new HumanPlayer(FieldState.O, "Human Player 1");
 
@@ -54,7 +58,7 @@ public class GameController {
 			activePlayer = player1;
 		}
 		
-		messageLog.log("Now moving: " + activePlayer.getName());
+		messageQueue.log("Now moving: " + activePlayer.getName());
 		
 		if (activePlayer.isAsync()){
 			return;
@@ -67,14 +71,16 @@ public class GameController {
 	}
 	
 	private FieldState processMove(int x, int y){
-		messageLog.log("Received move: " + x + " " + y);
+		messageQueue.log("Received move: " + x + " " + y);
 		FieldState state = activePlayer.getMyState();
 		//TODO validate
 		gameBoard.setField(x, y, state);
 		boolean won = gameBoard.checkIfWon(x, y, state);
 		if (won){
-			messageLog.log(activePlayer.getName() + " has won !");
+			messageQueue.log(activePlayer.getName() + " has won !");
 			setState(GameState.NotStarted);
+		}else{
+			messageQueue.postMessage(Message.PlayerMoved, new PlayerMoveData(x, y, state));
 		}
 		return state;
 	}
@@ -87,6 +93,10 @@ public class GameController {
 
 	private void setState(GameState gameState) {
 		this.gameState = gameState;
-		messageLog.log("State changed: " + gameState);
+		messageQueue.log("State changed: " + gameState);
+	}
+	
+	public MessageQueue getMessageQueue() {
+		return messageQueue;
 	}
 }

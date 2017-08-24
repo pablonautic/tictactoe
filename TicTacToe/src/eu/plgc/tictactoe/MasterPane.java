@@ -8,31 +8,45 @@ import eu.plgc.tictactoe.logic.FieldState;
 import eu.plgc.tictactoe.logic.GameBoard;
 import eu.plgc.tictactoe.logic.GameController;
 import eu.plgc.tictactoe.logic.GameMode;
+import eu.plgc.tictactoe.logic.PlayerMoveData;
+import eu.plgc.tictactoe.logic.bus.IMessageListener;
+import eu.plgc.tictactoe.logic.bus.Message;
 
 
-public class MasterPane  {
+public class MasterPane implements IMessageListener {
 	
 	
     static final String gapList[] = {"0", "10", "15", "20"};
     final static int maxGap = 20;
-    JComboBox horGapComboBox;
-    JComboBox verGapComboBox;
+
     JButton applyButton = new JButton("Apply gaps");
     //GridLayout experimentLayout = new GridLayout(3,3);
     
 	private final GameController gameController;
-    
+	
+    private GameButton[][] buttons;
+	
     public MasterPane(GameController controller, Container parentPane){
 		this.gameController = controller;
+		this.gameController.getMessageQueue().addListener(this);
 		
 		addComponentsToPane(parentPane);
 		
-		this.gameController.start(GameMode.TwoPlayer);
+		this.gameController.start(GameMode.PlayerVsAi);
     }
     
+	@Override
+	public void onMessageReceived(Message message) {
+		//TODO move check logic to bus
+		if (message.getMessageType() == Message.PlayerMoved){
+			PlayerMoveData data = (PlayerMoveData) message.getMessageData();
+			buttons[data.getX()][data.getY()].setFieldState(data.getNewState());
+		}
+		
+	}
+    
     public void initGaps() {
-        horGapComboBox = new JComboBox(gapList);
-        verGapComboBox = new JComboBox(gapList);
+
     }
     
     public void addComponentsToPane(final Container pane) {
@@ -59,14 +73,13 @@ public class MasterPane  {
         primaryPanel.setPreferredSize(new Dimension((int)(buttonSize.getWidth() * 2.5)+maxGap,
                 (int)(buttonSize.getHeight() * 3.5)+maxGap * 2));
         
-        
+        buttons = new GameButton[m][n];
         for (int i = 0; i < m; i++) {
         	for (int j = 0; j < n; j++) {
-        		JButton button = new GameButton(i, j, FieldState.Empty);
+        		JButton button = buttons[i][j] = new GameButton(i, j, FieldState.Empty);
         		button.addActionListener((event) -> {
         			GameButton src = (GameButton)event.getSource();
-        			FieldState newState = gameController.syncPlayerMove(src.getX(), src.getY());
-        			src.setFieldState(newState);
+        			gameController.syncPlayerMove(src.getX(), src.getY());
         		});
         		primaryPanel.add(button);		
 			}			
@@ -76,25 +89,9 @@ public class MasterPane  {
         menuPanel.add(new Label("Horizontal gap:"));
         menuPanel.add(new Label("Vertical gap:"));
         menuPanel.add(new Label(" "));
-        menuPanel.add(horGapComboBox);
-        menuPanel.add(verGapComboBox);
+
         menuPanel.add(applyButton);
         
-        //Process the Apply gaps button press
-        applyButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                //Get the horizontal gap value
-                String horGap = (String)horGapComboBox.getSelectedItem();
-                //Get the vertical gap value
-                String verGap = (String)verGapComboBox.getSelectedItem();
-                //Set up the horizontal gap value
-                //experimentLayout.setHgap(Integer.parseInt(horGap));
-                //Set up the vertical gap value
-                //experimentLayout.setVgap(Integer.parseInt(verGap));
-                //Set up the layout of the buttons
-                //experimentLayout.layoutContainer(compsToExperiment);
-            }
-        });
         
         pane.add(menuPanel, BorderLayout.NORTH);
         pane.add(new JSeparator(), BorderLayout.CENTER);
@@ -102,6 +99,8 @@ public class MasterPane  {
 
 
     }
+
+
     
 
 }

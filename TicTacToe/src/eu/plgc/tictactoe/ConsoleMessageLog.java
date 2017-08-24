@@ -1,12 +1,15 @@
 package eu.plgc.tictactoe;
 
-import eu.plgc.tictactoe.logic.IMessageLog;
+import eu.plgc.tictactoe.logic.bus.IMessageListener;
+import eu.plgc.tictactoe.logic.bus.Message;
 
-public class ConsoleMessageLog implements IMessageLog {
+public class ConsoleMessageLog implements IMessageListener {
+
 
 	@Override
-	public void log(String message) {
-		System.out.println(message);		
+	public void onMessageReceived(Message message) {
+		System.out.println(message);
+		
 	}
 
 }
