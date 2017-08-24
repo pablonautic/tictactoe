@@ -39,11 +39,11 @@ public class GameButton extends JButton {
 		}
 	}
 
-	public int getX() {
+	public int getpX() {
 		return x;
 	}
 
-	public int getY() {
+	public int getpY() {
 		return y;
 	}
 

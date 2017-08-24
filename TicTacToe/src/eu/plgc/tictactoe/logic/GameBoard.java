@@ -25,36 +25,58 @@ public class GameBoard {
 	
 	public boolean checkIfWon(int x, int y, FieldState fieldState){
 		
-		//check row
-		for (int i = 0; i < m; i++) {
-			if (fields[x][i] != fieldState){
-				return false;
-			}
+		if (checkRow(x, fieldState)){
+			return true;
 		}
 		
-		//check column
-		for (int i = 0; i < n; i++) {
-			if (fields[i][y] != fieldState){
-				return false;
-			}
+		if (checkColumn(y, fieldState)){
+			return true;
+		}
+			
+		if (checkDiag1(fieldState)){
+			return true;
 		}
 		
-		//check first diag
-		//TODO generalize
+		if (checkDiag2(fieldState)){
+			return true;
+		}
+				
+		return false;
+	}
+	
+	private boolean checkDiag1(FieldState fieldState){
 		for (int i = 0; i < n; i++) {
 			if (fields[i][i] != fieldState){
 				return false;
 			}
 		}
-		
-		//check second diag
-		//TODO generalize
-		for (int i = 0; i < n; i++) {
-			if (fields[i][n-i+1] != fieldState){
+		return true;
+	}
+	
+	private boolean checkDiag2(FieldState fieldState){
+		for (int i = 0; i < m; i++) {
+			if (fields[i][m-i-1] != fieldState){
 				return false;
 			}
 		}
-		
+		return true;
+	}
+
+	private boolean checkColumn(int y, FieldState fieldState) {
+		for (int i = 0; i < n; i++) {
+			if (fields[i][y] != fieldState){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean checkRow(int x, FieldState fieldState) {
+		for (int i = 0; i < m; i++) {
+			if (fields[x][i] != fieldState){
+				return false;
+			}
+		}
 		return true;
 	}
 

@@ -5,6 +5,7 @@ public class Message {
 	public static final String PlayerMoved = "PlayerMoved";
 	public static final String Info = "Info";
 	public static final String GameReset = "GameReset";
+	public static final String GameEnd = "GameEnd";
 	
 	private String messageType;
 	private Object messageData;

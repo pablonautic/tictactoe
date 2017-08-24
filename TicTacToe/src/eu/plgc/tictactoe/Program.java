@@ -43,12 +43,13 @@ public class Program {
 
 		JFrame frame = new JFrame("Tic Tac Toe");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 			
 		MessageQueue queue = new MessageQueue();
 		queue.addListener(new ConsoleMessageLog());
 			
 		GameController controller = new GameController(3, 3, queue);
-		new MasterPane(controller, frame.getContentPane());
+		frame.getContentPane().add(new MasterPane(controller));
 		
 		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new KeyEventDispatcher() {
@@ -68,7 +69,10 @@ public class Program {
 		});
 
 		frame.pack();
-		frame.setVisible(true);		
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		
+		frame.setSize(500, 500);
 
 	}
 	

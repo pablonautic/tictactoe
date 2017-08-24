@@ -6,13 +6,13 @@ import eu.plgc.tictatoe.utils.Tuple;
 
 public class GameController {
 
+	@SuppressWarnings("unused")
 	private GameState gameState = GameState.NotStarted;
+	
 	private GameMode gameMode;
 
 	private GameBoard gameBoard;
 	private MessageQueue messageQueue;
-
-
 
 	private AbstractPlayer player1;
 	private AbstractPlayer player2;
@@ -53,6 +53,7 @@ public class GameController {
 	}
 	
 	public void reset() {
+		gameBoard.reset();
 		start(this.gameMode);
 	}
 	
@@ -76,25 +77,24 @@ public class GameController {
 		}
 	}
 	
-	private FieldState processMove(int x, int y){
+	private void processMove(int x, int y){
 		messageQueue.log("Received move: " + x + " " + y);
 		FieldState state = activePlayer.getMyState();
 		//TODO validate
 		gameBoard.setField(x, y, state);
+		
+		messageQueue.postMessage(Message.PlayerMoved, new PlayerMoveData(x, y, state));
+		
 		boolean won = gameBoard.checkIfWon(x, y, state);
 		if (won){
-			messageQueue.log(activePlayer.getName() + " has won !");
+			messageQueue.postMessage(Message.GameEnd, activePlayer.getName() + " has won !");
 			setState(GameState.NotStarted);
-		}else{
-			messageQueue.postMessage(Message.PlayerMoved, new PlayerMoveData(x, y, state));
 		}
-		return state;
 	}
 
-	public FieldState syncPlayerMove(int x, int y) {
-		FieldState state = processMove(x, y);
+	public void syncPlayerMove(int x, int y) {
+		processMove(x, y);
 		togglePlayer();
-		return state;
 	}
 
 	private void setState(GameState gameState) {
